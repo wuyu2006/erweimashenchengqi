@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>多功能二维码生成器</title>
+  <!-- 引入二维码生成库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    /* 全局样式 */
+    body {
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+    }
+    /* 主容器 */
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 500px;
+    }
+    /* 标签按钮 */
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+    .tabs button {
+      flex: 1;
+      padding: 10px 20px;
+      background: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      margin: 0 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .tabs button.active,
+    .tabs button:hover {
+      background: #0056b3;
+    }
+    /* 标签内容区域 */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .input-group {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .input-group input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    button.generate-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button.generate-btn:hover {
+      background-color: #0056b3;
+    }
+    /* 二维码显示区域 */
+    .qrcode-container {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('linkSection', this)">网页链接二维码</button>
+      <button class="tab-btn" onclick="showTab('textSection', this)">文本二维码</button>
+      <button class="tab-btn" onclick="showTab('randomSection', this)">随机二维码</button>
+    </div>
+    
+    <!-- 网页链接二维码界面 -->
+    <div id="linkSection" class="tab-content active">
+      <div class="input-group">
+        <input type="text" id="urlInput" placeholder="请输入网页链接">
+        <button class="generate-btn" onclick="generateQRCodeFromLink()">生成链接二维码</button>
+      </div>
+      <div id="qrcodeLink" class="qrcode-container"></div>
+    </div>
+    
+    <!-- 文本二维码界面 -->
+    <div id="textSection" class="tab-content">
+      <div class="input-group">
+        <input type="text" id="textInput" placeholder="请输入文本">
+        <button class="generate-btn" onclick="generateQRCodeFromText()">生成文本二维码</button>
+      </div>
+      <div id="qrcodeText" class="qrcode-container"></div>
+    </div>
+    
+    <!-- 随机二维码界面 -->
+    <div id="randomSection" class="tab-content">
+      <div class="input-group">
+        <button class="generate-btn" onclick="generateRandomQRCode()">随机生成二维码</button>
+      </div>
+      <div id="qrcodeRandom" class="qrcode-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // 清空二维码内容
+    function clearQRCode(containerId) {
+      document.getElementById(containerId).innerHTML = "";
+    }
+
+    // 创建二维码
+    function createQRCode(containerId, text) {
+      clearQRCode(containerId);
+      new QRCode(document.getElementById(containerId), {
+        text: text,
+        width: 200,
+        height: 200,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    // 网页链接二维码
+    function generateQRCodeFromLink() {
+      var url = document.getElementById("urlInput").value;
+      if (url.trim() === "") {
+        alert("请输入有效的网页链接");
+        return;
+      }
+      createQRCode("qrcodeLink", url);
+    }
+
+    // 文本二维码
+    function generateQRCodeFromText() {
+      var text = document.getElementById("textInput").value;
+      if (text.trim() === "") {
+        alert("请输入有效文本");
+        return;
+      }
+      createQRCode("qrcodeText", text);
+    }
+
+    // 随机二维码
+    function generateRandomQRCode() {
+      var randomStr = Math.random().toString(36).substr(2, 8);
+      createQRCode("qrcodeRandom", randomStr);
+    }
+
+    // 标签页切换
+    function showTab(tabId, btn) {
+      // 隐藏所有标签内容
+      var tabContents = document.getElementsByClassName("tab-content");
+      for (var i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove("active");
+      }
+      // 清除所有按钮的 active 样式
+      var tabButtons = document.getElementsByClassName("tab-btn");
+      for (var i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove("active");
+      }
+      // 显示当前标签内容
+      document.getElementById(tabId).classList.add("active");
+      btn.classList.add("active");
+    }
+  </script>
+</body>
+</html>
