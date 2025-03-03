@@ -2,104 +2,103 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>多功能二维码工具</title>
-  <!-- 引入二维码生成库 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- 引入 jsQR 库用于二维码解码 -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
   <style>
-    /* 全局样式 */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; }
     body {
-      background: linear-gradient(135deg, #f6d365, #fda085);
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-      justify-content: center;
-      align-items: center;
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      display: flex; justify-content: center; align-items: center;
+      padding: 20px; position: relative;
     }
-    /* 主容器 */
+    .header { position: fixed; top: 20px; left: 20px; z-index: 10; }
+    .header img { height: 50px; }
     .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 500px;
+      background: #fff; border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%; max-width: 600px; padding: 30px;
     }
-    /* 标签按钮 */
     .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      margin-bottom: 20px;
+      display: flex; flex-wrap: wrap; justify-content: space-around; margin-bottom: 20px;
     }
-    .tabs button {
-      flex: 1 1 45%;
-      padding: 10px 20px;
-      background: #007BFF;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      margin: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .tabs button.active,
-    .tabs button:hover {
-      background: #0056b3;
-    }
-    /* 标签内容区域 */
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .input-group {
-      margin-bottom: 20px;
+    .tab-btn {
+      flex: 1; margin: 5px; padding: 10px;
+      background: #007BFF; border: none; border-radius: 4px;
+      color: #fff; cursor: pointer; transition: background 0.3s ease;
       text-align: center;
     }
+    .tab-btn.active, .tab-btn:hover { background: #0056b3; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .input-group { margin-bottom: 20px; text-align: center; }
     .input-group input[type="text"],
-    .input-group input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      box-sizing: border-box;
-      margin-bottom: 10px;
+    .input-group select {
+      width: 100%; padding: 10px; font-size: 16px;
+      border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px;
     }
-    button.generate-btn {
-      padding: 10px 20px;
-      font-size: 16px;
-      color: #fff;
-      background-color: #007BFF;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+    .generate-btn, .download-btn {
+      padding: 10px 20px; background: #007BFF; border: none; border-radius: 4px;
+      color: #fff; cursor: pointer; transition: background 0.3s ease;
+      margin: 5px;
     }
-    button.generate-btn:hover {
-      background-color: #0056b3;
+    .generate-btn:hover, .download-btn:hover { background: #0056b3; }
+    .qrcode-display {
+      width: 220px; height: 220px;
+      border: 1px dashed #ccc;
+      display: flex; align-items: center; justify-content: center;
+      margin: 20px auto; position: relative; overflow: hidden;
     }
-    /* 二维码显示区域 */
-    .qrcode-container {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
+    .qrcode-display canvas, .qrcode-display img {
+      width: 100%; height: 100%; object-fit: cover;
     }
-    .result {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 16px;
-      color: #333;
-      word-break: break-all;
+    #dropZone {
+      border: 2px dashed #007BFF; border-radius: 4px;
+      padding: 20px; text-align: center; cursor: pointer;
+      color: #007BFF; transition: background 0.3s ease;
+    }
+    #dropZone.hover { background: #f0f8ff; }
+    .result { text-align: center; font-size: 16px; margin-top: 20px; word-break: break-all; }
+    #instructionBtn {
+      position: fixed; bottom: 20px; right: 20px; padding: 10px 15px;
+      background: #007BFF; border: none; border-radius: 4px; color: #fff;
+      cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: background 0.3s ease; z-index: 10;
+    }
+    #instructionBtn:hover { background: #0056b3; }
+    .modal {
+      display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+      justify-content: center; align-items: center; padding: 20px;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #fff; border-radius: 8px; padding: 20px 30px;
+      max-width: 500px; width: 100%; position: relative; animation: modalAnim 0.5s ease;
+    }
+    @keyframes modalAnim {
+      from { transform: translate(100%, 100%) scale(0.5); opacity: 0; }
+      to { transform: translate(0, 0) scale(1); opacity: 1; }
+    }
+    .close {
+      position: absolute; right: 15px; top: 10px;
+      font-size: 24px; color: #aaa; cursor: pointer;
+    }
+    .close:hover { color: #000; }
+    @media (max-width: 600px) {
+      .container { padding: 20px; }
+      .tab-btn { font-size: 14px; padding: 8px; }
+      .generate-btn, .download-btn { font-size: 14px; padding: 8px 16px; }
     }
   </style>
 </head>
 <body>
+  <div class="header">
+    <img src="logo.png" alt="网站 Logo">
+  </div>
   <div class="container">
     <div class="tabs">
       <button class="tab-btn active" onclick="showTab('linkSection', this)">网页链接二维码</button>
@@ -107,131 +106,226 @@
       <button class="tab-btn" onclick="showTab('randomSection', this)">随机二维码</button>
       <button class="tab-btn" onclick="showTab('decodeSection', this)">二维码解码</button>
     </div>
-    
-    <!-- 网页链接二维码界面 -->
     <div id="linkSection" class="tab-content active">
       <div class="input-group">
-        <input type="text" id="urlInput" placeholder="请输入网页链接">
+        <input type="text" id="urlInput" placeholder="请输入有效网页链接（如 https://example.com）">
         <button class="generate-btn" onclick="generateQRCodeFromLink()">生成链接二维码</button>
       </div>
-      <div id="qrcodeLink" class="qrcode-container"></div>
+      <div class="qrcode-display" id="qrcodeLink"></div>
+      <div style="text-align:center;">
+        <button class="download-btn" onclick="downloadQRCode('qrcodeLink', document.getElementById('urlInput').value)">二维码下载</button>
+      </div>
     </div>
-    
-    <!-- 文本二维码界面 -->
     <div id="textSection" class="tab-content">
       <div class="input-group">
         <input type="text" id="textInput" placeholder="请输入文本">
         <button class="generate-btn" onclick="generateQRCodeFromText()">生成文本二维码</button>
       </div>
-      <div id="qrcodeText" class="qrcode-container"></div>
+      <div class="qrcode-display" id="qrcodeText"></div>
+      <div style="text-align:center;">
+        <button class="download-btn" onclick="downloadQRCode('qrcodeText', document.getElementById('textInput').value)">二维码下载</button>
+      </div>
     </div>
-    
-    <!-- 随机二维码界面 -->
     <div id="randomSection" class="tab-content">
       <div class="input-group">
+        <select id="gridSelect">
+          <option value="21">极简</option>
+          <option value="25">简单</option>
+          <option value="29">中等</option>
+          <option value="33">复杂</option>
+          <option value="37">非常复杂</option>
+          <option value="41">极致复杂</option>
+          <option value="45">极限复杂</option>
+        </select>
         <button class="generate-btn" onclick="generateRandomQRCode()">随机生成二维码</button>
       </div>
-      <div id="qrcodeRandom" class="qrcode-container"></div>
+      <div class="qrcode-display" id="qrcodeRandom"></div>
+      <div style="text-align:center;">
+        <button class="download-btn" onclick="downloadQRCode('qrcodeRandom', randomQRContent)">二维码下载</button>
+      </div>
     </div>
-    
-    <!-- 二维码解码界面 -->
     <div id="decodeSection" class="tab-content">
       <div class="input-group">
-        <input type="file" id="fileInput" accept="image/*">
-        <button class="generate-btn" onclick="decodeQRCode()">解码二维码</button>
+        <input type="file" id="fileInput" accept="image/*" style="display:none;">
+        <div id="dropZone">拖拽二维码图片到此区域，或点击选择文件</div>
       </div>
+      <div class="qrcode-display" id="qrcodeDecodeDisplay"></div>
       <div id="decodeResult" class="result">解码结果将在此显示</div>
     </div>
   </div>
-
+  <button id="instructionBtn" onclick="openModal()">使用说明</button>
+  <div id="instructionModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h4>详细使用说明</h4>
+      <p><strong>网页链接二维码：</strong></p>
+      <ul>
+        <li>在输入框内输入一个有效的网页链接（例如 <code>https://example.com</code>）。</li>
+        <li>点击“生成链接二维码”按钮，二维码将铺满固定区域。</li>
+        <li>使用手机扫码或其它设备扫描二维码，即可访问该链接。</li>
+      </ul>
+      <p><strong>文本二维码：</strong></p>
+      <ul>
+        <li>在输入框内输入任意文本信息。</li>
+        <li>点击“生成文本二维码”按钮，二维码将铺满固定区域。</li>
+      </ul>
+      <p><strong>随机二维码：</strong></p>
+      <ul>
+        <li>通过下拉框选择复杂程度（极简、简单、中等、复杂、非常复杂、极致复杂、极限复杂），然后点击“随机生成二维码”。</li>
+        <li>系统会随机生成一段字符，并根据选定复杂度生成二维码，二维码将铺满固定区域。</li>
+      </ul>
+      <p><strong>二维码解码：</strong></p>
+      <ul>
+        <li>拖拽含有二维码的图片到指定区域，或点击该区域后选择本地图片。</li>
+        <li>上传的二维码将铺满固定区域显示，系统将自动解析二维码中的信息，并在下方显示解码结果。</li>
+        <li>请确保图片清晰且二维码无遮挡，以提高识别率。</li>
+      </ul>
+    </div>
+  </div>
   <script>
-    // 清空二维码容器内容
+    let randomQRContent = "";
     function clearQRCode(containerId) {
       document.getElementById(containerId).innerHTML = "";
     }
-
-    // 创建二维码（生成）
-    function createQRCode(containerId, text) {
+    function createQRCode(containerId, text, options = {}) {
       clearQRCode(containerId);
-      new QRCode(document.getElementById(containerId), {
+      const opts = Object.assign({
         text: text,
-        width: 200,
-        height: 200,
+        width: 220,
+        height: 220,
         correctLevel: QRCode.CorrectLevel.H
-      });
+      }, options);
+      new QRCode(document.getElementById(containerId), opts);
     }
-
-    // 网页链接二维码生成
     function generateQRCodeFromLink() {
-      const url = document.getElementById("urlInput").value;
-      if (url.trim() === "") {
-        alert("请输入有效的网页链接");
-        return;
-      }
+      const url = document.getElementById("urlInput").value.trim();
+      if (!url) { alert("请输入有效的网页链接"); return; }
       createQRCode("qrcodeLink", url);
     }
-
-    // 文本二维码生成
     function generateQRCodeFromText() {
-      const text = document.getElementById("textInput").value;
-      if (text.trim() === "") {
-        alert("请输入有效文本");
-        return;
-      }
+      const text = document.getElementById("textInput").value.trim();
+      if (!text) { alert("请输入有效的文本"); return; }
       createQRCode("qrcodeText", text);
     }
-
-    // 随机二维码生成
-    function generateRandomQRCode() {
-      const randomStr = Math.random().toString(36).substr(2, 8);
-      createQRCode("qrcodeRandom", randomStr);
-    }
-
-    // 二维码解码（使用 jsQR）
-    function decodeQRCode() {
-      const fileInput = document.getElementById("fileInput");
-      if (fileInput.files.length === 0) {
-        alert("请选择二维码图片");
-        return;
+    function generateRandomString(length) {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-      const file = fileInput.files[0];
+      return result;
+    }
+    function generateRandomQRCode() {
+      const selectedModules = parseInt(document.getElementById("gridSelect").value);
+      let version = (selectedModules - 17) / 4;
+      let contentLength = 8;
+      switch(version) {
+        case 1: contentLength = 7; break;
+        case 2: contentLength = 14; break;
+        case 3: contentLength = 24; break;
+        case 4: contentLength = 34; break;
+        case 5: contentLength = 44; break;
+        case 6: contentLength = 54; break;
+        case 7: contentLength = 64; break;
+      }
+      randomQRContent = generateRandomString(contentLength);
+      const qr = qrcode(version, 'H');
+      qr.addData(randomQRContent);
+      qr.make();
+      let cellSize = Math.floor(220 / selectedModules);
+      clearQRCode("qrcodeRandom");
+      document.getElementById("qrcodeRandom").innerHTML = qr.createImgTag(cellSize);
+    }
+    function showTab(tabId, btn) {
+      const contents = document.getElementsByClassName("tab-content");
+      for (let i = 0; i < contents.length; i++) { contents[i].classList.remove("active"); }
+      const buttons = document.getElementsByClassName("tab-btn");
+      for (let i = 0; i < buttons.length; i++) { buttons[i].classList.remove("active"); }
+      document.getElementById(tabId).classList.add("active");
+      btn.classList.add("active");
+    }
+    function downloadQRCode(containerId, content) {
+      const container = document.getElementById(containerId);
+      if (!container) { alert("找不到二维码容器"); return; }
+      let dataURL = "";
+      const canvas = container.querySelector("canvas");
+      if (canvas) {
+        dataURL = canvas.toDataURL("image/jpeg");
+      } else {
+        const img = container.querySelector("img");
+        if (img) {
+          const tempCanvas = document.createElement("canvas");
+          tempCanvas.width = img.naturalWidth;
+          tempCanvas.height = img.naturalHeight;
+          const ctx = tempCanvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          dataURL = tempCanvas.toDataURL("image/jpeg");
+        }
+      }
+      if (!dataURL) { alert("未找到二维码图像"); return; }
+      const link = document.createElement("a");
+      link.href = dataURL;
+      link.download = (content ? content : "qrcode") + ".jpg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    dropZone.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      dropZone.classList.add("hover");
+    });
+    dropZone.addEventListener("dragleave", function(e) {
+      e.preventDefault();
+      dropZone.classList.remove("hover");
+    });
+    dropZone.addEventListener("drop", function(e) {
+      e.preventDefault();
+      dropZone.classList.remove("hover");
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        processFile(e.dataTransfer.files[0]);
+        e.dataTransfer.clearData();
+      }
+    });
+    dropZone.addEventListener("click", function() {
+      fileInput.click();
+    });
+    fileInput.addEventListener("change", function(e) {
+      if (e.target.files && e.target.files.length > 0) { processFile(e.target.files[0]); }
+    });
+    function processFile(file) {
       const reader = new FileReader();
       reader.onload = function(event) {
+        const decodeDisplay = document.getElementById("qrcodeDecodeDisplay");
+        decodeDisplay.innerHTML = "";
+        const imgDisplay = document.createElement("img");
+        imgDisplay.src = event.target.result;
+        decodeDisplay.appendChild(imgDisplay);
         const img = new Image();
         img.onload = function() {
-          // 创建一个临时 canvas 用于绘制图片
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
           canvas.width = img.width;
           canvas.height = img.height;
           context.drawImage(img, 0, 0, canvas.width, canvas.height);
-          // 获取图像像素数据
           const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          // 利用 jsQR 识别二维码
           const code = jsQR(imageData.data, imageData.width, imageData.height);
           if (code) {
-            document.getElementById("decodeResult").innerText = "解码结果: " + code.data;
+            document.getElementById("decodeResult").innerText = "解码结果：" + code.data;
           } else {
-            document.getElementById("decodeResult").innerText = "解码失败: 无法识别二维码";
+            document.getElementById("decodeResult").innerText = "解码失败：无法识别二维码";
           }
         };
         img.src = event.target.result;
       };
       reader.readAsDataURL(file);
     }
-
-    // 标签页切换
-    function showTab(tabId, btn) {
-      const tabContents = document.getElementsByClassName("tab-content");
-      for (let i = 0; i < tabContents.length; i++) {
-        tabContents[i].classList.remove("active");
-      }
-      const tabButtons = document.getElementsByClassName("tab-btn");
-      for (let i = 0; i < tabButtons.length; i++) {
-        tabButtons[i].classList.remove("active");
-      }
-      document.getElementById(tabId).classList.add("active");
-      btn.classList.add("active");
+    function openModal() { document.getElementById("instructionModal").classList.add("active"); }
+    function closeModal() { document.getElementById("instructionModal").classList.remove("active"); }
+    window.onclick = function(event) {
+      const modal = document.getElementById("instructionModal");
+      if (event.target === modal) { closeModal(); }
     }
   </script>
 </body>
