@@ -2,9 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>多功能二维码生成器</title>
+  <title>多功能二维码工具</title>
   <!-- 引入二维码生成库 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- 引入 jsQR 库用于二维码解码 -->
+  <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
   <style>
     /* 全局样式 */
     body {
@@ -29,17 +31,18 @@
     /* 标签按钮 */
     .tabs {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-around;
       margin-bottom: 20px;
     }
     .tabs button {
-      flex: 1;
+      flex: 1 1 45%;
       padding: 10px 20px;
       background: #007BFF;
       color: #fff;
       border: none;
       border-radius: 5px;
-      margin: 0 5px;
+      margin: 5px;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
@@ -58,7 +61,8 @@
       margin-bottom: 20px;
       text-align: center;
     }
-    .input-group input[type="text"] {
+    .input-group input[type="text"],
+    .input-group input[type="file"] {
       width: 100%;
       padding: 10px;
       font-size: 16px;
@@ -86,6 +90,13 @@
       display: flex;
       justify-content: center;
     }
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 16px;
+      color: #333;
+      word-break: break-all;
+    }
   </style>
 </head>
 <body>
@@ -94,6 +105,7 @@
       <button class="tab-btn active" onclick="showTab('linkSection', this)">网页链接二维码</button>
       <button class="tab-btn" onclick="showTab('textSection', this)">文本二维码</button>
       <button class="tab-btn" onclick="showTab('randomSection', this)">随机二维码</button>
+      <button class="tab-btn" onclick="showTab('decodeSection', this)">二维码解码</button>
     </div>
     
     <!-- 网页链接二维码界面 -->
@@ -121,15 +133,24 @@
       </div>
       <div id="qrcodeRandom" class="qrcode-container"></div>
     </div>
+    
+    <!-- 二维码解码界面 -->
+    <div id="decodeSection" class="tab-content">
+      <div class="input-group">
+        <input type="file" id="fileInput" accept="image/*">
+        <button class="generate-btn" onclick="decodeQRCode()">解码二维码</button>
+      </div>
+      <div id="decodeResult" class="result">解码结果将在此显示</div>
+    </div>
   </div>
 
   <script>
-    // 清空二维码内容
+    // 清空二维码容器内容
     function clearQRCode(containerId) {
       document.getElementById(containerId).innerHTML = "";
     }
 
-    // 创建二维码
+    // 创建二维码（生成）
     function createQRCode(containerId, text) {
       clearQRCode(containerId);
       new QRCode(document.getElementById(containerId), {
@@ -140,9 +161,9 @@
       });
     }
 
-    // 网页链接二维码
+    // 网页链接二维码生成
     function generateQRCodeFromLink() {
-      var url = document.getElementById("urlInput").value;
+      const url = document.getElementById("urlInput").value;
       if (url.trim() === "") {
         alert("请输入有效的网页链接");
         return;
@@ -150,9 +171,9 @@
       createQRCode("qrcodeLink", url);
     }
 
-    // 文本二维码
+    // 文本二维码生成
     function generateQRCodeFromText() {
-      var text = document.getElementById("textInput").value;
+      const text = document.getElementById("textInput").value;
       if (text.trim() === "") {
         alert("请输入有效文本");
         return;
@@ -160,25 +181,55 @@
       createQRCode("qrcodeText", text);
     }
 
-    // 随机二维码
+    // 随机二维码生成
     function generateRandomQRCode() {
-      var randomStr = Math.random().toString(36).substr(2, 8);
+      const randomStr = Math.random().toString(36).substr(2, 8);
       createQRCode("qrcodeRandom", randomStr);
+    }
+
+    // 二维码解码（使用 jsQR）
+    function decodeQRCode() {
+      const fileInput = document.getElementById("fileInput");
+      if (fileInput.files.length === 0) {
+        alert("请选择二维码图片");
+        return;
+      }
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          // 创建一个临时 canvas 用于绘制图片
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          context.drawImage(img, 0, 0, canvas.width, canvas.height);
+          // 获取图像像素数据
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          // 利用 jsQR 识别二维码
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+          if (code) {
+            document.getElementById("decodeResult").innerText = "解码结果: " + code.data;
+          } else {
+            document.getElementById("decodeResult").innerText = "解码失败: 无法识别二维码";
+          }
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
     }
 
     // 标签页切换
     function showTab(tabId, btn) {
-      // 隐藏所有标签内容
-      var tabContents = document.getElementsByClassName("tab-content");
-      for (var i = 0; i < tabContents.length; i++) {
+      const tabContents = document.getElementsByClassName("tab-content");
+      for (let i = 0; i < tabContents.length; i++) {
         tabContents[i].classList.remove("active");
       }
-      // 清除所有按钮的 active 样式
-      var tabButtons = document.getElementsByClassName("tab-btn");
-      for (var i = 0; i < tabButtons.length; i++) {
+      const tabButtons = document.getElementsByClassName("tab-btn");
+      for (let i = 0; i < tabButtons.length; i++) {
         tabButtons[i].classList.remove("active");
       }
-      // 显示当前标签内容
       document.getElementById(tabId).classList.add("active");
       btn.classList.add("active");
     }
