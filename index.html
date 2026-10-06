@@ -1,555 +1,341 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>多功能二维码/条码工具</title>
-  <!-- 引入二维码相关库 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-  <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
-  <!-- 引入条码生成及解码库 -->
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-  <style>
-    /* 基本样式 */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; }
-    body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background: linear-gradient(135deg, #f6d365, #fda085);
-      display: flex; justify-content: center; align-items: center;
-      padding: 20px; position: relative;
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CodeKit · 二维码与条码工具</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+<script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<style>
+:root{--bg:#f5f7fb;--panel:#fff;--text:#142033;--muted:#718096;--line:#e6ebf2;--brand:#4f46e5;--brand2:#7c3aed;--soft:#eef2ff;--shadow:0 18px 50px rgba(31,41,55,.10)}
+[data-theme=dark]{--bg:#111827;--panel:#1f2937;--text:#f8fafc;--muted:#a5b4c7;--line:#374151;--soft:#312e81;--shadow:0 18px 50px rgba(0,0,0,.28)}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 0 0,#e0e7ff 0,transparent 30%),var(--bg);color:var(--text);font:15px/1.6 Inter,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}.app{max-width:1120px;margin:auto;padding:28px 20px 44px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px;box-shadow:0 8px 20px #4f46e544}.brand h1{font-size:21px;margin:0;letter-spacing:-.4px}.brand p{margin:0;color:var(--muted);font-size:12px}.icon-btn,.btn{border:0;border-radius:11px;padding:10px 15px;cursor:pointer;font:inherit;transition:.2s}.icon-btn{background:var(--panel);color:var(--text);border:1px solid var(--line)}.icon-btn:hover,.btn:hover{transform:translateY(-1px)}.hero{background:linear-gradient(135deg,#4338ca,#7c3aed);color:#fff;border-radius:24px;padding:28px 30px;margin-bottom:20px;box-shadow:0 18px 35px #4f46e533}.hero h2{margin:0 0 5px;font-size:27px}.hero p{margin:0;opacity:.8}.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:20px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:22px}.mode{display:flex;background:var(--soft);padding:4px;border-radius:13px;margin-bottom:20px}.mode button{flex:1;border:0;background:transparent;color:var(--muted);padding:11px;border-radius:10px;cursor:pointer;font-weight:700}.mode button.active{background:var(--panel);color:var(--brand);box-shadow:0 3px 12px #00000012}.tabs{display:flex;gap:8px;overflow:auto;border-bottom:1px solid var(--line);margin-bottom:20px}.tabs button{white-space:nowrap;border:0;background:none;color:var(--muted);padding:10px 8px;cursor:pointer;border-bottom:2px solid transparent}.tabs button.active{color:var(--brand);border-color:var(--brand);font-weight:700}.view{display:none}.view.active{display:block}.field{margin-bottom:15px}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}.input,.select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--text);font:inherit;outline:0}.input:focus,.select:focus{border-color:var(--brand);box-shadow:0 0 0 3px #4f46e51a}.row{display:flex;gap:10px;align-items:center}.row>*{flex:1}.btn.primary{background:var(--brand);color:#fff}.btn.ghost{background:var(--soft);color:var(--brand)}.btn.danger{background:#fff1f2;color:#e11d48}.actions{display:flex;gap:9px;flex-wrap:wrap}.canvas{min-height:260px;border:1px dashed var(--line);background:color-mix(in srgb,var(--soft) 45%, transparent);border-radius:16px;display:grid;place-items:center;margin:18px 0;padding:18px}.canvas canvas,.canvas img{max-width:100%;height:auto;image-rendering:auto}.canvas svg{max-width:100%;height:auto}.empty{color:var(--muted);text-align:center}.drop{border:1.5px dashed var(--brand);border-radius:14px;padding:26px;text-align:center;color:var(--muted);cursor:pointer;background:color-mix(in srgb,var(--soft) 35%, transparent)}.drop strong{display:block;color:var(--brand);margin-bottom:4px}.result{padding:12px;border-radius:11px;background:var(--soft);word-break:break-all;min-height:45px;color:var(--text)}.side h3{font-size:15px;margin:0 0 14px}.history{display:flex;flex-direction:column;gap:9px;max-height:390px;overflow:auto}.history-item{padding:11px;border:1px solid var(--line);border-radius:12px;cursor:pointer}.history-item:hover{border-color:var(--brand)}.history-item b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.history-item small{color:var(--muted)}.side .divider{height:1px;background:var(--line);margin:20px 0}.hint{font-size:12px;color:var(--muted);margin-top:8px}.toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%) translateY(20px);background:#111827;color:white;padding:10px 16px;border-radius:99px;opacity:0;pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}@media(max-width:820px){.layout{grid-template-columns:1fr}.side{order:2}}@media(max-width:520px){.app{padding:18px 12px 30px}.hero{padding:22px}.hero h2{font-size:23px}.panel{padding:16px}.row{flex-direction:column;align-items:stretch}.topbar{margin-bottom:18px}}
+</style><script data-oneopenai-tracker-block>(function(){var K="__oneopenaiTrackerBlock";if(window[K])return;window[K]=true;var B=["browser-intake-datadoghq.com","analytics.tiktok.com","bat.bing.com","snap.licdn.com","www.redditstatic.com","cdn.segment.com","api.segment.io","statsigapi.net","events.statsigcdn.com","api.statsigcdn.com"];function bl(u){if(!u)return false;try{var h=new URL(u,location.href).hostname;return B.some(function(d){return h===d||h.length>d.length&&h.slice(-(d.length+1))==="."+d;});}catch(e){return false;}}var _f=window.fetch;if(typeof _f==="function")window.fetch=function(r,o){var u=typeof r==="string"?r:(r&&typeof r==="object"&&r.url)||"";if(bl(u))return Promise.resolve(new Response("",{status:204}));return _f.apply(this,arguments);};var _xo=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){this._gwb=bl(String(u||""));if(!this._gwb)return _xo.apply(this,arguments);};var _xs=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(d){if(!this._gwb)return _xs.call(this,d);};})();</script><script data-oneopenai-sentinel-guard>!function () {
+  var guardKey = "__oneopenaiSentinelGuard";
+  var nativeFetch = window.fetch;
+  var NativeURL = window.URL;
+  var NativeWebSocket = window.WebSocket;
+  var proxyOrigin = location.origin;
+
+
+  if (!nativeFetch || !NativeURL || nativeFetch[guardKey]) {
+    return;
+  }
+
+  function isChatGPTHost(hostname) {
+    var host = (hostname || "").toLowerCase();
+    return host === "chatgpt.com" || host.endsWith(".chatgpt.com");
+  }
+
+  function isOAIUserContentSandboxHost(hostname) {
+    var host = (hostname || "").toLowerCase();
+    var base = "web-sandbox.oaiusercontent.com";
+    return host === base || host.endsWith("." + base);
+  }
+
+  // 新版深度研究会把 Connector 名拼到当前页面域名前，例如：
+  // connector-openai-deep-research.backend.local。这个派生域名没有 DNS，
+  // 先还原成官方 Sandbox Host，再复用现有同源代理路由。
+  function officialOAIUserContentSandboxHost(hostname) {
+    var host = (hostname || "").toLowerCase();
+    if (isOAIUserContentSandboxHost(host)) return host;
+    var pageHost = (location.hostname || "").toLowerCase();
+    var suffix = pageHost ? "." + pageHost : "";
+    if (!suffix || !host.endsWith(suffix)) return "";
+    var connector = host.slice(0, -suffix.length);
+    if (!/^connector[-_][a-z0-9._-]+$/.test(connector)) return "";
+    return connector + ".web-sandbox.oaiusercontent.com";
+  }
+
+  function oaiUserContentSandboxPrefix(hostname) {
+    var host = (hostname || "").toLowerCase();
+    if (host === "web-sandbox.oaiusercontent.com") {
+      return "/web-sandbox-oaiusercontent";
     }
-    .header { position: fixed; top: 20px; left: 20px; z-index: 10; }
-    .header img { height: 50px; }
-    /* 模式切换按钮样式调整 */
-    .mode-switch {
-     position: fixed;
-     top: 15%;
-     left: 50%;
-     transform: translateX(-50%);
-     display: flex;
-     justify-content: center;
-     width: 300px;
-     border: 1px solid #007BFF;
-     border-radius: 4px;
-     overflow: hidden;
-     z-index: 10;
+    return "/web-sandbox-oaiusercontent-host/" + encodeURIComponent(host);
+  }
+
+  function proxyWebSocketOrigin() {
+    return proxyOrigin.replace(/^http/i, "ws");
+  }
+
+  function hasPathPrefix(pathname, prefix) {
+    return pathname === prefix || pathname.indexOf(prefix + "/") === 0;
+  }
+
+  function rewriteChatGPTPath(pathname) {
+    if (hasPathPrefix(pathname, "/backend-alt")) {
+      return "/backend-api" + pathname.slice("/backend-alt".length);
     }
-    .mode-btn {
-      flex: 1;
-      padding: 10px 0;
-      background: #fff;
-      border: none;
-      color: #007BFF;
-      cursor: pointer;
-      transition: background 0.3s ease, color 0.3s ease;
+    if (hasPathPrefix(pathname, "/ab")) {
+      return pathname;
     }
-    .mode-btn.active {
-      background: #007BFF;
-      color: #fff;
-    }
-    .mode-btn:not(:last-child) {
-      border-right: 1px solid #007BFF;
-    }
-    .container {
-      background: #fff; border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 100%; max-width: 600px; padding: 30px;
-    }
-    .tabs {
-      display: flex; flex-wrap: wrap; justify-content: space-around; margin-bottom: 20px;
-    }
-    .tab-btn {
-      flex: 1; margin: 5px; padding: 10px;
-      background: #007BFF; border: none; border-radius: 4px;
-      color: #fff; cursor: pointer; transition: background 0.3s ease;
-      text-align: center;
-    }
-    .tab-btn.active, .tab-btn:hover { background: #0056b3; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .input-group { margin-bottom: 20px; text-align: center; }
-    .input-group input[type="text"],
-    .input-group select {
-      width: 100%; padding: 10px; font-size: 16px;
-      border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px;
-    }
-    .generate-btn, .download-btn {
-      padding: 10px 20px; background: #007BFF; border: none; border-radius: 4px;
-      color: #fff; cursor: pointer; transition: background 0.3s ease;
-      margin: 5px;
-    }
-    .generate-btn:hover, .download-btn:hover { background: #0056b3; }
-    .qrcode-display {
-      width: 220px; height: 220px;
-      border: 1px dashed #ccc;
-      display: flex; align-items: center; justify-content: center;
-      margin: 20px auto; position: relative; overflow: hidden;
-    }
-    .qrcode-display canvas, .qrcode-display img, .qrcode-display svg {
-      width: 100%; height: 100%; object-fit: cover;
-    }
-    /* 拖拽区域 */
-    #dropZone, #barcodeDropZone {
-      border: 2px dashed #007BFF; border-radius: 4px;
-      padding: 20px; text-align: center; cursor: pointer;
-      color: #007BFF; transition: background 0.3s ease;
-    }
-    #dropZone.hover, #barcodeDropZone.hover { background: #f0f8ff; }
-    .result { text-align: center; font-size: 16px; margin-top: 20px; word-break: break-all; }
-    #instructionBtn {
-      position: fixed; bottom: 20px; right: 20px; padding: 10px 15px;
-      background: #007BFF; border: none; border-radius: 4px; color: #fff;
-      cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: background 0.3s ease; z-index: 10;
-    }
-    #instructionBtn:hover { background: #0056b3; }
-    .modal {
-      display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-      width: 100%; height: 100%; background: rgba(0,0,0,0.5);
-      justify-content: center; align-items: center; padding: 20px;
-    }
-    .modal.active { display: flex; }
-    .modal-content {
-      background: #fff; border-radius: 8px; padding: 20px 30px;
-      max-width: 500px; width: 100%; position: relative; animation: modalAnim 0.5s ease;
-    }
-    @keyframes modalAnim {
-      from { transform: translate(100%, 100%) scale(0.5); opacity: 0; }
-      to { transform: translate(0, 0) scale(1); opacity: 1; }
-    }
-    .close {
-      position: absolute; right: 15px; top: 10px;
-      font-size: 24px; color: #aaa; cursor: pointer;
-    }
-    .close:hover { color: #000; }
-    @media (max-width: 600px) {
-      .container { padding: 20px; }
-      .tab-btn { font-size: 14px; padding: 8px; }
-      .generate-btn, .download-btn { font-size: 14px; padding: 8px 16px; }
-      .mode-switch { width: 90%; }
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <img src="logo.png" alt="网站 Logo">
-  </div>
-  
-  <button id="instructionBtn" onclick="openModal()">使用说明</button>
-  
-  <!-- 模式切换：二维码 / 条码 -->
-  <div class="mode-switch">
-    <button class="mode-btn active" onclick="showMode('qrMode', this)">二维码</button>
-    <button class="mode-btn" onclick="showMode('barcodeMode', this)">条码</button>
-  </div>
-  
-  <!-- 二维码模式 -->
-  <div id="qrMode">
-    <div class="container">
-      <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('linkSection', this)">网页链接二维码</button>
-        <button class="tab-btn" onclick="showTab('textSection', this)">文本二维码</button>
-        <button class="tab-btn" onclick="showTab('randomSection', this)">随机二维码</button>
-        <button class="tab-btn" onclick="showTab('decodeSection', this)">二维码解码</button>
-      </div>
-      <div id="linkSection" class="tab-content active">
-        <div class="input-group">
-          <input type="text" id="urlInput" placeholder="请输入有效网页链接（如 https://example.com）">
-          <button class="generate-btn" onclick="generateQRCodeFromLink()">生成链接二维码</button>
-        </div>
-        <div class="qrcode-display" id="qrcodeLink"></div>
-        <div style="text-align:center;">
-          <button class="download-btn" onclick="downloadQRCode('qrcodeLink', document.getElementById('urlInput').value)">二维码下载</button>
-        </div>
-      </div>
-      <div id="textSection" class="tab-content">
-        <div class="input-group">
-          <input type="text" id="textInput" placeholder="请输入文本">
-          <button class="generate-btn" onclick="generateQRCodeFromText()">生成文本二维码</button>
-        </div>
-        <div class="qrcode-display" id="qrcodeText"></div>
-        <div style="text-align:center;">
-          <button class="download-btn" onclick="downloadQRCode('qrcodeText', document.getElementById('textInput').value)">二维码下载</button>
-        </div>
-      </div>
-      <div id="randomSection" class="tab-content">
-        <div class="input-group">
-          <select id="gridSelect">
-            <option value="21">极简</option>
-            <option value="25">简单</option>
-            <option value="29">中等</option>
-            <option value="33">复杂</option>
-            <option value="37">非常复杂</option>
-            <option value="41">极致复杂</option>
-            <option value="45">极限复杂</option>
-          </select>
-          <button class="generate-btn" onclick="generateRandomQRCode()">随机生成二维码</button>
-        </div>
-        <div class="qrcode-display" id="qrcodeRandom"></div>
-        <div style="text-align:center;">
-          <button class="download-btn" onclick="downloadQRCode('qrcodeRandom', randomQRContent)">二维码下载</button>
-        </div>
-      </div>
-      <div id="decodeSection" class="tab-content">
-        <div class="input-group">
-          <input type="file" id="fileInput" accept="image/*" style="display:none;">
-          <div id="dropZone">拖拽二维码图片到此区域，或点击选择文件</div>
-        </div>
-        <div class="qrcode-display" id="qrcodeDecodeDisplay"></div>
-        <div id="decodeResult" class="result">解码结果将在此显示</div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- 条码模式 -->
-  <div id="barcodeMode" style="display: none;">
-    <div class="container">
-      <div class="tabs">
-        <button class="tab-btn active" onclick="showBarcodeTab('barcodeTextSection', this)">文本条码</button>
-        <button class="tab-btn" onclick="showBarcodeTab('barcodeRandomSection', this)">随机条码</button>
-        <button class="tab-btn" onclick="showBarcodeTab('barcodeDecodeSection', this)">条码解码</button>
-      </div>
-      <div id="barcodeTextSection" class="tab-content active">
-        <div class="input-group">
-          <input type="text" id="barcodeTextInput" placeholder="请输入文本生成条码">
-          <button class="generate-btn" onclick="generateBarcodeFromText()">生成文本条码</button>
-        </div>
-        <div class="qrcode-display" id="barcodeTextDisplay"></div>
-        <div style="text-align:center;">
-          <button class="download-btn" onclick="downloadBarcode('barcodeTextDisplay', document.getElementById('barcodeTextInput').value)">条码下载</button>
-        </div>
-      </div>
-      <div id="barcodeRandomSection" class="tab-content">
-        <div class="input-group">
-          <button class="generate-btn" onclick="generateRandomBarcode()">随机生成条码</button>
-        </div>
-        <div class="qrcode-display" id="barcodeRandomDisplay"></div>
-        <div style="text-align:center;">
-          <button class="download-btn" onclick="downloadBarcode('barcodeRandomDisplay', randomBarcodeContent)">条码下载</button>
-        </div>
-      </div>
-      <div id="barcodeDecodeSection" class="tab-content">
-        <div class="input-group">
-          <input type="file" id="barcodeFileInput" accept="image/*" style="display:none;">
-          <div id="barcodeDropZone">拖拽条码图片到此区域，或点击选择文件</div>
-        </div>
-        <div class="qrcode-display" id="barcodeDecodeDisplay"></div>
-        <div id="barcodeDecodeResult" class="result">解码结果将在此显示</div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- 使用说明弹窗 -->
-  <div id="instructionModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <h4>详细使用说明</h4>
-      <p><strong>二维码模式：</strong></p>
-      <ul>
-        <li><strong>网页链接二维码：</strong>输入有效网页链接并生成二维码，扫码即可访问链接。</li>
-        <li><strong>文本二维码：</strong>输入任意文本生成二维码。</li>
-        <li><strong>随机二维码：</strong>根据选择的复杂度生成随机二维码。</li>
-        <li><strong>二维码解码：</strong>上传或拖拽二维码图片进行解码。</li>
-      </ul>
-      <p><strong>条码模式：</strong></p>
-      <ul>
-        <li><strong>文本条码：</strong>输入文本生成条码（仅支持 ASCII 字符，若存在不支持的字符会提示）。</li>
-        <li><strong>随机条码：</strong>随机生成一串数字作为条码内容。</li>
-        <li><strong>条码解码：</strong>上传或拖拽条码图片进行解码。</li>
-      </ul>
-    </div>
-  </div>
-  
-  <script>
-    // 全局随机内容变量
-    let randomQRContent = "";
-    let randomBarcodeContent = "";
-    
-    // 模式切换函数
-    function showMode(modeId, btn) {
-      const modeBtns = document.getElementsByClassName("mode-btn");
-      for (let i = 0; i < modeBtns.length; i++) {
-        modeBtns[i].classList.remove("active");
+    return pathname || "/";
+  }
+
+  function normalizeURLString(value) {
+    if (typeof value !== "string") return value;
+    var s = value.trim();
+    if (!s) return value;
+    // 协议相对 //host/... — 之前正则会直接放行导致 iframe 仍直连 web-sandbox.*
+    if (s.indexOf("//") === 0 && s.indexOf("://") === -1) {
+      try {
+        return new NativeURL(s, location.href).href;
+      } catch (e) {
+        return value;
       }
-      btn.classList.add("active");
-      if(modeId === 'qrMode') {
-        document.getElementById("qrMode").style.display = "block";
-        document.getElementById("barcodeMode").style.display = "none";
+    }
+    return s;
+  }
+
+  function rewriteFetchURL(value) {
+    try {
+      value = normalizeURLString(value);
+      if (typeof value !== "string") {
+        return value;
+      }
+      if (!/^https?:\/\//i.test(value) && !/^wss?:\/\//i.test(value)) {
+        return value;
+      }
+
+      var url = new NativeURL(value, location.href);
+      var host = url.hostname.toLowerCase();
+      var path = url.pathname || "/";
+
+
+      if ((host === "127.0.0.1" || host === "localhost") && url.port === "8000" && hasPathPrefix(path, "/api/sentinel")) {
+        url.port = window.location.port;
+        return url.href;
+      }
+
+
+      // web-sandbox.* — 代码预览与深度研究 iframe。
+      // 深度研究使用 connector_*.web-sandbox.oaiusercontent.com，必须保留完整上游 Host。
+      var sandboxHost = officialOAIUserContentSandboxHost(host);
+      if (host === "web-sandbox.oaistatic.com" || sandboxHost) {
+        var prefix = host === "web-sandbox.oaistatic.com" ? "/web-sandbox-oaistatic" : oaiUserContentSandboxPrefix(sandboxHost);
+        var sandboxPath = url.pathname === "/" || url.pathname === "" ? "" : url.pathname;
+        // 官方 Sandbox SDK 默认要求父页面来源为 chatgpt.com。经 Gateway 改写后 iframe
+        // 实际运行在同源代理路径下，必须启用 SDK 自带的本地代理兼容开关，否则静态资源
+        // 虽然全部 200，iframe 仍会因初始化握手的 target-origin 校验失败而保持空白。
+        url.searchParams.set("unsafeSkipTargetOriginCheck", "true");
+        return proxyOrigin + prefix + sandboxPath + url.search + url.hash;
+      }
+
+      // ws.chatgpt.com — WebSocket 实时推送（画图完成通知等）
+      // 路由到网关 /wschatgpt/*path，由 server.go 的 wsChatGPTHandler 代理到上游
+      if (host === "ws.chatgpt.com") {
+        if (url.protocol === "ws:" || url.protocol === "wss:") {
+          return proxyWebSocketOrigin() + "/wschatgpt" + path + url.search + url.hash;
+        }
+        return proxyOrigin + "/wschatgpt" + path + url.search + url.hash;
+      }
+
+      if (host === "ab.chatgpt.com") {
+        return proxyOrigin + "/ab" + path + url.search + url.hash;
+      }
+
+      if (isChatGPTHost(host)) {
+        var nextPath = rewriteChatGPTPath(path);
+        if (url.protocol === "ws:" || url.protocol === "wss:") {
+          return proxyWebSocketOrigin() + nextPath + url.search + url.hash;
+        }
+        return proxyOrigin + nextPath + url.search + url.hash;
+      }
+    } catch (error) {
+      return value;
+    }
+    return value;
+  }
+
+  // 落到本网关 /ces/* 的请求全是 Statsig 遥测（rgstr / statsc / settings）。
+  //
+  // 根因（已确认，非缓存问题）：Statsig 用 CompressionStream 把 body gzip 成「流式 body」
+  // （ReadableStream + duplex:'half'，URL 上的 gz=1 即此），而 Chrome 规定带流式 body 的
+  // fetch 必须走 HTTP/2，浏览器的 HTTP/2 又只在 TLS 上跑。网关是明文 http，Chrome 在建连
+  // 阶段就 ERR_ALPN_NEGOTIATION_FAILED，请求根本不发出去（curl / Firefox 不强制 h2 所以正常）。
+  // → 这是 Chrome 对「明文 http + 流式 body」的硬限制，任何服务端改动都接不到这个请求，
+  //   真正根治只能给网关上 HTTPS+HTTP/2（如前置 Caddy 终止 TLS）。
+  //
+  // 这些遥测挂掉对功能零影响（只是埋点没上报）。下面的短路逻辑可在「注入了本 guard 的
+  // gateway 页面」上把 /ces 直接合成 200，消掉 Chrome 控制台那片红；但对 xy 等不经过本
+  // guard 的页面无效，所以它只是消噪音、不是根治。当前用 return false 关闭，按需打开。
+  function isLocalCES(value) {
+    // 关闭短路：暂不在客户端假装成功，保留报错以便排查（功能不受影响）。
+    return false;
+
+    try {
+      if (typeof value !== "string") return false;
+      var u = new NativeURL(value, location.href);
+      // 只比对 host（含端口），不比对 scheme：某些构建会把 CES 端点拼成
+      // https://<本机>/ces，而网关只跑明文 http，origin 比对会因 scheme 不一致失败，
+      // 请求漏到网络层触发 ERR_SSL_PROTOCOL_ERROR。落到本网关 /ces 下的请求
+      // 全是 Statsig 遥测，无论 http/https 一律短路。
+      return u.host === location.host && hasPathPrefix(u.pathname, "/ces");
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function cesSuccessResponse() {
+    return new Response('{"success":true}', {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+
+  window.fetch = function (resource, init) {
+    try {
+      if (resource && typeof Request !== "undefined" && resource instanceof Request) {
+        var nextURL = rewriteFetchURL(resource.url);
+        if (isLocalCES(nextURL)) {
+          return Promise.resolve(cesSuccessResponse());
+        }
+        if (nextURL !== resource.url) {
+          var nextRequest = init ? new Request(resource, init) : resource;
+          return nativeFetch.call(this, new Request(nextURL, nextRequest));
+        }
       } else {
-        document.getElementById("qrMode").style.display = "none";
-        document.getElementById("barcodeMode").style.display = "block";
-      }
-    }
-    
-    /* ========== 二维码相关函数 ========== */
-    function clearQRCode(containerId) {
-      document.getElementById(containerId).innerHTML = "";
-    }
-    function createQRCode(containerId, text, options = {}) {
-      clearQRCode(containerId);
-      const opts = Object.assign({
-        text: text,
-        width: 220,
-        height: 220,
-        correctLevel: QRCode.CorrectLevel.H
-      }, options);
-      new QRCode(document.getElementById(containerId), opts);
-    }
-    function generateQRCodeFromLink() {
-      const url = document.getElementById("urlInput").value.trim();
-      if (!url) { alert("请输入有效的网页链接"); return; }
-      createQRCode("qrcodeLink", url);
-    }
-    function generateQRCodeFromText() {
-      const text = document.getElementById("textInput").value.trim();
-      if (!text) { alert("请输入有效的文本"); return; }
-      createQRCode("qrcodeText", text);
-    }
-    function generateRandomQRCode() {
-      const selectedModules = parseInt(document.getElementById("gridSelect").value);
-      let version = (selectedModules - 17) / 4;
-      let contentLength = 8;
-      switch(version) {
-        case 1: contentLength = 7; break;
-        case 2: contentLength = 14; break;
-        case 3: contentLength = 24; break;
-        case 4: contentLength = 34; break;
-        case 5: contentLength = 44; break;
-        case 6: contentLength = 54; break;
-        case 7: contentLength = 64; break;
-      }
-      randomQRContent = generateRandomString(contentLength);
-      const qr = qrcode(version, 'H');
-      qr.addData(randomQRContent);
-      qr.make();
-      let cellSize = Math.floor(220 / selectedModules);
-      clearQRCode("qrcodeRandom");
-      document.getElementById("qrcodeRandom").innerHTML = qr.createImgTag(cellSize);
-    }
-    function generateRandomString(length) {
-      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-      let result = "";
-      for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return result;
-    }
-    function downloadQRCode(containerId, content) {
-      const container = document.getElementById(containerId);
-      if (!container) { alert("找不到二维码容器"); return; }
-      let dataURL = "";
-      const canvas = container.querySelector("canvas");
-      if (canvas) {
-        dataURL = canvas.toDataURL("image/jpeg");
-      } else {
-        const img = container.querySelector("img");
-        if (img) {
-          const tempCanvas = document.createElement("canvas");
-          tempCanvas.width = img.naturalWidth;
-          tempCanvas.height = img.naturalHeight;
-          const ctx = tempCanvas.getContext("2d");
-          ctx.drawImage(img, 0, 0);
-          dataURL = tempCanvas.toDataURL("image/jpeg");
+        resource = rewriteFetchURL(resource);
+        if (isLocalCES(resource)) {
+          return Promise.resolve(cesSuccessResponse());
         }
       }
-      if (!dataURL) { alert("未找到二维码图像"); return; }
-      const link = document.createElement("a");
-      link.href = dataURL;
-      link.download = (content ? content : "qrcode") + ".jpg";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-    
-    // 二维码解码（使用 jsQR）
-    const dropZone = document.getElementById("dropZone");
-    const fileInput = document.getElementById("fileInput");
-    dropZone.addEventListener("dragover", function(e) {
-      e.preventDefault();
-      dropZone.classList.add("hover");
-    });
-    dropZone.addEventListener("dragleave", function(e) {
-      e.preventDefault();
-      dropZone.classList.remove("hover");
-    });
-    dropZone.addEventListener("drop", function(e) {
-      e.preventDefault();
-      dropZone.classList.remove("hover");
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        processFile(e.dataTransfer.files[0]);
-        e.dataTransfer.clearData();
+    } catch (error) { }
+
+    return nativeFetch.call(this, resource, init);
+  };
+  window.fetch[guardKey] = true;
+
+  // 同步拦截 new WebSocket(url)，确保 ws://chatgpt.com 等地址经过同一套 rewriteFetchURL 改写，
+  // 而不是直连 chatgpt.com（浏览器无法带上网关注入的 Cookie/Bearer，连接会失败）。
+  if (NativeWebSocket) {
+    function PatchedWebSocket(url, protocols) {
+      var rewritten = rewriteFetchURL(url);
+      if (protocols !== undefined) {
+        return new NativeWebSocket(rewritten, protocols);
       }
-    });
-    dropZone.addEventListener("click", function() {
-      fileInput.click();
-    });
-    fileInput.addEventListener("change", function(e) {
-      if (e.target.files && e.target.files.length > 0) { processFile(e.target.files[0]); }
-    });
-    function processFile(file) {
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const decodeDisplay = document.getElementById("qrcodeDecodeDisplay");
-        decodeDisplay.innerHTML = "";
-        const imgDisplay = document.createElement("img");
-        imgDisplay.src = event.target.result;
-        decodeDisplay.appendChild(imgDisplay);
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          canvas.width = img.width;
-          canvas.height = img.height;
-          context.drawImage(img, 0, 0, canvas.width, canvas.height);
-          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height);
-          if (code) {
-            document.getElementById("decodeResult").innerText = "解码结果：" + code.data;
-          } else {
-            document.getElementById("decodeResult").innerText = "解码失败：无法识别二维码";
-          }
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+      return new NativeWebSocket(rewritten);
     }
-    
-    /* ========== 条码相关函数 ========== */
-    function clearBarcode(containerId) {
-      document.getElementById(containerId).innerHTML = "";
-    }
-    // 检查文本是否只包含 ASCII 字符（Code128支持范围）
-    function isValidASCII(text) {
-      return /^[\x00-\x7F]*$/.test(text);
-    }
-    function generateBarcodeFromText() {
-      const text = document.getElementById("barcodeTextInput").value.trim();
-      if (!text) { alert("请输入有效的文本"); return; }
-      if (!isValidASCII(text)) {
-        alert("当前文本含有不支持生成条码的字符，请使用仅包含ASCII字符的文本");
-        return;
-      }
-      clearBarcode("barcodeTextDisplay");
-      document.getElementById("barcodeTextDisplay").innerHTML = '<svg id="barcodeSVG"></svg>';
-      JsBarcode("#barcodeSVG", text, { format: "CODE128", width:2, height:100, displayValue: true });
-    }
-    function generateRandomBarcode() {
-      randomBarcodeContent = "";
-      for (let i = 0; i < 12; i++) {
-        randomBarcodeContent += Math.floor(Math.random() * 10);
-      }
-      clearBarcode("barcodeRandomDisplay");
-      document.getElementById("barcodeRandomDisplay").innerHTML = '<svg id="barcodeRandomSVG"></svg>';
-      JsBarcode("#barcodeRandomSVG", randomBarcodeContent, { format: "CODE128", width:2, height:100, displayValue: true });
-    }
-    function downloadBarcode(containerId, content) {
-      const container = document.getElementById(containerId);
-      if (!container) { alert("找不到条码容器"); return; }
-      let dataURL = "";
-      const svg = container.querySelector("svg");
-      if (svg) {
-        const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svg);
-        dataURL = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
-      } else {
-        const canvas = container.querySelector("canvas");
-        if (canvas) {
-          dataURL = canvas.toDataURL("image/jpeg");
+    PatchedWebSocket.prototype = NativeWebSocket.prototype;
+    PatchedWebSocket.CONNECTING = NativeWebSocket.CONNECTING;
+    PatchedWebSocket.OPEN = NativeWebSocket.OPEN;
+    PatchedWebSocket.CLOSING = NativeWebSocket.CLOSING;
+    PatchedWebSocket.CLOSED = NativeWebSocket.CLOSED;
+    window.WebSocket = PatchedWebSocket;
+  }
+
+  // iframe src 由 React 直接 setAttribute / .src 赋值，不经过 fetch；必须在这里改写到网关。
+  var origSetAttribute = Element.prototype.setAttribute;
+  Element.prototype.setAttribute = function (name, value) {
+    try {
+      if (this.tagName === "IFRAME" && name && String(name).toLowerCase() === "src" && typeof value === "string") {
+        var abs = normalizeURLString(value);
+        var rw = rewriteFetchURL(abs);
+        if (rw !== abs) {
+          value = rw;
         }
       }
-      if (!dataURL) { alert("未找到条码图像"); return; }
-      const link = document.createElement("a");
-      link.href = dataURL;
-      link.download = (content ? content : "barcode") + ".svg";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    } catch (e) { }
+    return origSetAttribute.call(this, name, value);
+  };
+
+  try {
+    var srcDesc = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, "src");
+    if (srcDesc && srcDesc.set && srcDesc.get) {
+      Object.defineProperty(HTMLIFrameElement.prototype, "src", {
+        configurable: true,
+        enumerable: srcDesc.enumerable,
+        get: function () {
+          return srcDesc.get.call(this);
+        },
+        set: function (v) {
+          try {
+            if (typeof v === "string") {
+              var abs = normalizeURLString(v);
+              var rw = rewriteFetchURL(abs);
+              v = rw !== abs ? rw : v;
+            }
+          } catch (e) { }
+          srcDesc.set.call(this, v);
+        }
+      });
     }
-    
-    // 条码解码（使用 QuaggaJS）
-    const barcodeDropZone = document.getElementById("barcodeDropZone");
-    const barcodeFileInput = document.getElementById("barcodeFileInput");
-    barcodeDropZone.addEventListener("dragover", function(e) {
-      e.preventDefault();
-      barcodeDropZone.classList.add("hover");
-    });
-    barcodeDropZone.addEventListener("dragleave", function(e) {
-      e.preventDefault();
-      barcodeDropZone.classList.remove("hover");
-    });
-    barcodeDropZone.addEventListener("drop", function(e) {
-      e.preventDefault();
-      barcodeDropZone.classList.remove("hover");
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        processBarcodeFile(e.dataTransfer.files[0]);
-        e.dataTransfer.clearData();
+  } catch (e) { }
+
+  function sweepIframeSrc(node) {
+    if (!node) return;
+    if (node.tagName === "IFRAME") {
+      var cur = node.getAttribute("src");
+      if (cur) {
+        var abs = normalizeURLString(cur);
+        var rw = rewriteFetchURL(abs);
+        if (rw !== abs) {
+          origSetAttribute.call(node, "src", rw);
+        }
       }
-    });
-    barcodeDropZone.addEventListener("click", function() {
-      barcodeFileInput.click();
-    });
-    barcodeFileInput.addEventListener("change", function(e) {
-      if (e.target.files && e.target.files.length > 0) { processBarcodeFile(e.target.files[0]); }
-    });
-    function processBarcodeFile(file) {
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const decodeDisplay = document.getElementById("barcodeDecodeDisplay");
-        decodeDisplay.innerHTML = "";
-        const imgDisplay = document.createElement("img");
-        imgDisplay.src = event.target.result;
-        decodeDisplay.appendChild(imgDisplay);
-        Quagga.decodeSingle({
-          src: event.target.result,
-          numOfWorkers: 0,
-          inputStream: { size: 800 },
-          decoder: {
-            readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"]
-          },
-        }, function(result) {
-          if(result && result.codeResult) {
-            document.getElementById("barcodeDecodeResult").innerText = "解码结果：" + result.codeResult.code;
-          } else {
-            document.getElementById("barcodeDecodeResult").innerText = "解码失败：无法识别条码";
+    }
+    if (node.querySelectorAll) {
+      var listnode = node.querySelectorAll("iframe[src]");
+      for (var i = 0; i < listnode.length; i++) sweepIframeSrc(listnode[i]);
+    }
+  }
+
+  function installIframeObserver() {
+    sweepIframeSrc(document.documentElement);
+    if (!window.MutationObserver) return;
+    var mo = new MutationObserver(function (records) {
+      for (var i = 0; i < records.length; i++) {
+        var r = records[i];
+        if (r.type === "childList") {
+          for (var j = 0; j < r.addedNodes.length; j++) {
+            var n = r.addedNodes[j];
+            if (n.nodeType === 1) sweepIframeSrc(n);
           }
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-    
-    /* ========== 标签页切换 ========== */
-    function showTab(tabId, btn) {
-      const parentContainer = btn.parentElement.parentElement;
-      const tabs = parentContainer.querySelectorAll(".tab-content");
-      tabs.forEach(tab => tab.classList.remove("active"));
-      const tabBtns = parentContainer.querySelectorAll(".tab-btn");
-      tabBtns.forEach(button => button.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-      btn.classList.add("active");
-    }
-    function showBarcodeTab(tabId, btn) {
-      const container = document.getElementById("barcodeMode");
-      const contents = container.getElementsByClassName("tab-content");
-      for (let i = 0; i < contents.length; i++) {
-        contents[i].classList.remove("active");
+        } else if (r.type === "attributes" && r.target && r.target.tagName === "IFRAME" && r.attributeName === "src") {
+          sweepIframeSrc(r.target);
+        }
       }
-      const buttons = container.getElementsByClassName("tab-btn");
-      for (let i = 0; i < buttons.length; i++) {
-        buttons[i].classList.remove("active");
-      }
-      document.getElementById(tabId).classList.add("active");
-      btn.classList.add("active");
-    }
-    
-    /* ========== 模态框 ========== */
-    function openModal() { document.getElementById("instructionModal").classList.add("active"); }
-    function closeModal() { document.getElementById("instructionModal").classList.remove("active"); }
-    window.onclick = function(event) {
-      const modal = document.getElementById("instructionModal");
-      if (event.target === modal) { closeModal(); }
-    }
-  </script>
-</body>
-</html>
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["src"] });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installIframeObserver);
+  } else {
+    installIframeObserver();
+  }
+}();
+</script><script src="/_ooa/custom.js" data-oneopenai-custom-js></script><script src="/_ooa/frontend-runtime-guard.js" data-oneopenai-runtime-guard></script><script src="/_ooa/pet.js" data-oneopenai-pet-js defer></script><script src="/_ooa/user-custom.js" data-oneopenai-user-custom-js defer></script><link rel="stylesheet" href="/Static/css/Global.css"/><link rel="stylesheet" href="/Web/css/Global.css"/><link rel="stylesheet" href="/Web/css/OneOpenAI.css"/></head>
+<body><main class="app"><header class="topbar"><div class="brand"><div class="logo">⌘</div><div><h1>CodeKit</h1><p>轻量、快速、好用的编码工具</p></div></div><button class="icon-btn" id="themeBtn" title="切换主题">☾</button></header>
+<section class="hero"><h2>二维码与条码，一站式完成</h2><p>生成、下载、复制、解码，所有内容都在浏览器本地处理。</p></section>
+<div class="layout"><section class="panel"><div class="mode"><button class="active" data-mode="qr">二维码</button><button data-mode="bar">条码</button></div>
+<div id="qrArea"><nav class="tabs"><button class="active" data-tab="qrText">文本 / 链接</button><button data-tab="qrRandom">随机二维码</button><button data-tab="qrDecode">图片解码</button></nav>
+<div class="view active" id="qrText"><div class="field"><label>内容</label><textarea class="input" id="qrInput" rows="3" placeholder="输入网址、文本或联系方式…"></textarea></div><div class="row"><div class="field"><label>容错级别</label><select class="select" id="qrLevel"><option value="L">低 · 适合短文本</option><option value="M" selected>中 · 推荐</option><option value="Q">高 · 更耐损</option><option value="H">最高 · 适合印刷</option></select></div><div class="field"><label>尺寸</label><select class="select" id="qrSize"><option value="220">220 px</option><option value="280" selected>280 px</option><option value="360">360 px</option></select></div></div><div class="actions"><button class="btn primary" id="qrGen">生成二维码</button><button class="btn ghost" id="qrClear">清空</button></div><div class="canvas" id="qrOutput"><div class="empty">输入内容后生成二维码</div></div><div class="actions"><button class="btn ghost" id="qrDownload">下载 PNG</button><button class="btn ghost" id="qrCopy">复制内容</button></div></div>
+<div class="view" id="qrRandom"><div class="field"><label>随机内容长度</label><div class="row"><input class="input" id="randomLen" type="number" min="4" max="120" value="24"><button class="btn primary" id="randomGen">随机生成</button></div></div><div class="canvas" id="randomOutput"><div class="empty">点击按钮生成随机二维码</div></div><div class="result" id="randomText">—</div></div>
+<div class="view" id="qrDecode"><div class="drop" id="qrDrop"><strong>拖拽二维码图片到这里</strong>或点击选择图片<input id="qrFile" type="file" accept="image/*" hidden></div><div class="canvas" id="qrPreview"><div class="empty">尚未选择图片</div></div><div class="result" id="qrResult">识别结果会显示在这里</div></div></div>
+<div id="barArea" style="display:none"><nav class="tabs"><button class="active" data-tab="barText">文本条码</button><button data-tab="barRandom">随机条码</button><button data-tab="barDecode">图片解码</button></nav>
+<div class="view active" id="barText"><div class="field"><label>内容（Code 128 支持 ASCII 字符）</label><input class="input" id="barInput" placeholder="例如：CODEKIT-2026"></div><div class="actions"><button class="btn primary" id="barGen">生成条码</button><button class="btn ghost" id="barClear">清空</button></div><div class="canvas" id="barOutput"><div class="empty">输入内容后生成条码</div></div><button class="btn ghost" id="barDownload">下载 SVG</button></div>
+<div class="view" id="barRandom"><div class="actions"><button class="btn primary" id="barRandomGen">生成 12 位随机条码</button></div><div class="canvas" id="barRandomOutput"><div class="empty">点击按钮生成随机条码</div></div><div class="result" id="barRandomText">—</div></div>
+<div class="view" id="barDecode"><div class="drop" id="barDrop"><strong>拖拽条码图片到这里</strong>或点击选择图片<input id="barFile" type="file" accept="image/*" hidden></div><div class="canvas" id="barPreview"><div class="empty">尚未选择图片</div></div><div class="result" id="barResult">识别结果会显示在这里</div></div></div></section>
+<aside class="panel side"><h3>最近生成</h3><div class="history" id="history"><div class="empty">暂无记录</div></div><div class="divider"></div><div class="actions"><button class="btn ghost" id="copyLast">复制最近内容</button><button class="btn danger" id="clearHistory">清空记录</button></div><p class="hint">记录仅保存在当前浏览器，不会上传到服务器。</p></aside></div></main><div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];let lastQR='',lastBar='',history=JSON.parse(localStorage.getItem('codekit-history')||'[]');
+function toast(t){let x=$('#toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),1800)}
+function save(type,value){if(!value)return;history=[{type,value,time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}),id:Date.now()},...history.filter(x=>x.value!==value)].slice(0,12);localStorage.setItem('codekit-history',JSON.stringify(history));renderHistory()}
+function renderHistory(){let h=$('#history');h.innerHTML=history.length?history.map(x=>`<div class="history-item" data-value="${encodeURIComponent(x.value)}"><b>${x.type==='qr'?'▦':'▥'} ${escapeHtml(x.value)}</b><small>${x.time}</small></div>`).join(''):'<div class="empty">暂无记录</div>';$$('.history-item').forEach(x=>x.onclick=()=>{let v=decodeURIComponent(x.dataset.value);navigator.clipboard?.writeText(v);toast('已复制内容')})}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function qr(el,text,size=280,level='M'){el.innerHTML='';new QRCode(el,{text,width:size,height:size,correctLevel:QRCode.CorrectLevel[level]||QRCode.CorrectLevel.M});}
+function svg(el,text){el.innerHTML='<svg></svg>';JsBarcode(el.querySelector('svg'),text,{format:'CODE128',width:2,height:110,displayValue:true,margin:12,lineColor:getComputedStyle(document.body).getPropertyValue('--text')||'#142033'});}
+function download(el,name,type){let c=el.querySelector('canvas'),a=document.createElement('a');if(c){a.href=c.toDataURL('image/png');a.download=(name||'qrcode')+'.png'}else{let s=el.querySelector('svg');if(!s)return toast('请先生成内容');a.href='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(s));a.download=(name||'barcode')+'.svg'}a.click();toast('已开始下载')}
+$$('[data-mode]').forEach(b=>b.onclick=()=>{$$('[data-mode]').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#qrArea').style.display=b.dataset.mode==='qr'?'block':'none';$('#barArea').style.display=b.dataset.mode==='bar'?'block':'none'});
+$$('.tabs button').forEach(b=>b.onclick=()=>{let p=b.parentElement.parentElement; p.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.tab).classList.add('active')});
+$('#qrGen').onclick=()=>{let v=$('#qrInput').value.trim();if(!v)return toast('请输入内容');qr($('#qrOutput'),v,+$('#qrSize').value,$('#qrLevel').value);lastQR=v;save('qr',v);toast('二维码已生成')};$('#qrClear').onclick=()=>{$('#qrInput').value='';$('#qrOutput').innerHTML='<div class="empty">输入内容后生成二维码</div>'};$('#qrDownload').onclick=()=>download($('#qrOutput'),lastQR);$('#qrCopy').onclick=()=>{if(!lastQR)return toast('暂无内容');navigator.clipboard?.writeText(lastQR);toast('内容已复制')};
+$('#randomGen').onclick=()=>{let n=Math.min(120,Math.max(4,+$('#randomLen').value||24));let v=Array.from({length:n},()=>Math.random().toString(36)[2]).join('');qr($('#randomOutput'),v,280,'H');$('#randomText').textContent=v;lastQR=v;save('qr',v)};
+$('#barGen').onclick=()=>{let v=$('#barInput').value.trim();if(!v)return toast('请输入内容');if(!/^[\x00-\x7F]+$/.test(v))return toast('条码仅支持 ASCII 字符');svg($('#barOutput'),v);lastBar=v;save('bar',v);toast('条码已生成')};$('#barClear').onclick=()=>{$('#barInput').value='';$('#barOutput').innerHTML='<div class="empty">输入内容后生成条码</div>'};$('#barDownload').onclick=()=>download($('#barOutput'),lastBar);
+$('#barRandomGen').onclick=()=>{let v=Array.from({length:12},()=>Math.floor(Math.random()*10)).join('');svg($('#barRandomOutput'),v);$('#barRandomText').textContent=v;lastBar=v;save('bar',v)};
+function fileHandler(file,kind){if(!file)return;let r=new FileReader();r.onload=e=>{let src=e.target.result,preview=kind==='qr'?$('#qrPreview'):$('#barPreview');preview.innerHTML=`<img src="${src}" alt="预览">`;let img=new Image();img.onload=()=>{if(kind==='qr'){let c=document.createElement('canvas'),x=c.getContext('2d');c.width=img.width;c.height=img.height;x.drawImage(img,0,0);let d=x.getImageData(0,0,c.width,c.height),z=jsQR(d.data,d.width,d.height);$('#qrResult').textContent=z?'识别结果：'+z.data:'无法识别二维码'}else Quagga.decodeSingle({src,numOfWorkers:0,inputStream:{size:800},decoder:{readers:['code_128_reader','ean_reader','ean_8_reader','upc_reader','upc_e_reader']}},res=>$('#barResult').textContent=res&&res.codeResult?'识别结果：'+res.codeResult.code:'无法识别条码')};img.src=src};r.readAsDataURL(file)}
+[['qrDrop','qrFile','qr'],['barDrop','barFile','bar']].forEach(([d,f,k])=>{let z=$('#'+d),i=$('#'+f);z.onclick=()=>i.click();i.onchange=e=>fileHandler(e.target.files[0],k);z.ondragover=e=>{e.preventDefault();z.style.background='var(--soft)'};z.ondragleave=()=>z.style.background='';z.ondrop=e=>{e.preventDefault();z.style.background='';fileHandler(e.dataTransfer.files[0],k)}});
+$('#themeBtn').onclick=()=>{let d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'':'dark';localStorage.setItem('codekit-theme',d.dataset.theme);$('#themeBtn').textContent=d.dataset.theme==='dark'?'☀':'☾'};if(localStorage.getItem('codekit-theme')==='dark')$('#themeBtn').click();$('#copyLast').onclick=()=>{let v=lastQR||lastBar||history[0]?.value;if(v){navigator.clipboard?.writeText(v);toast('已复制最近内容')}else toast('暂无记录')};$('#clearHistory').onclick=()=>{history=[];localStorage.removeItem('codekit-history');renderHistory();toast('记录已清空')};renderHistory();
+</script><script src="/Static/js/jquery.js"></script><script src="/Static/js/Global.js"></script><script src="/Web/js/Global.js"></script><script src="/Web/js/OneOpenAI.js"></script></body></html>
